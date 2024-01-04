@@ -1,11 +1,11 @@
-name = "aiken-lang/hyperspace"
+name = "aiken-lang/domswap"
 version = "0.0.0"
 license = "Apache-2.0"
-description = "Aiken contracts for project 'aiken-lang/hyperspace'"
+description = "Aiken contracts for project 'aiken-lang/domswap'"
 
 [repository]
 user = "aiken-lang"
-project = "hyperspace"
+project = "domswap"
 platform = "github"
 
 [[dependencies]]

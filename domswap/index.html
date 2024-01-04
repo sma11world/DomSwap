@@ -65,16 +65,17 @@
       console.log(addressRequest);
       let api = undefined;
 
+      var wallet = "nami";
+
       function checkAccess() {
         return connected;
       }
       async function connect() {
-        api = await window.cardano["nami"].enable();
+        api = await window.cardano[wallet].enable();
         document.getElementById("swap").disabled = false;
         document.getElementById("connect").disabled = true;
       }
 
-      var wallet = "nami";
       async function swap() {
         api = await window.cardano[wallet].enable();
 

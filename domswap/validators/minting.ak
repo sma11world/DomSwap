@@ -1,4 +1,4 @@
-use aiken/dict.{Dict}
+//use aiken/dict.{Dict}
 use aiken/list.{filter, length}
 use aiken/transaction.{
   Input, Mint, NoDatum, Output, OutputReference, ScriptContext, ScriptPurpose,
@@ -24,13 +24,13 @@ type Redeemer {
   Burn
 }
 
-pub type MapDatum =
-  Dict<ByteArray, ByteArray>
+// pub type MapDatum =
+//   Dict<ByteArray, ByteArray>
 
-type Datum {
-  map: MapDatum,
-  policy: ByteArray,
-}
+// type Datum {
+//   map: MapDatum,
+//   policy: ByteArray,
+// }
 
 validator {
   fn minter(redeemer: Redeemer, ctx: ScriptContext) {
@@ -133,7 +133,7 @@ fn input_is_included(tx: ByteArray, index: Int, txInputs: List<Input>) {
 }
 
 //the output to the contract is the same output with datum, and there cannot be more than one output with datum and more than one to the contract
-fn one_daxtum_one_contract_outputs(txOutputs: List<Output>, contract: ByteArray) {
+fn one_datum_one_contract_outputs(txOutputs: List<Output>, contract: ByteArray) {
   let maybeOutput =
     list.filter(
       txOutputs,

@@ -47,6 +47,12 @@
         script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
       };
 
+console.log("cbor.encode(fromHex(data.validators[0].compiledCode))")
+console.log(cbor.encode(fromHex(data.validators[0].compiledCode)))
+console.log("data.validators[2].compiledCode")
+console.log(data.validators[2].compiledCode)
+
+
       var policyidScript = {
         type: "PlutusV2",
         script: toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
@@ -86,13 +92,13 @@
         console.log("credentials");
         console.log(paymentCredential.hash);
         console.log(stakeCredential.hash);
-        var assetName = "7374617274696e674e4654";
+        var assetName = "000de140446f6d7a30";
 
         var unitNFT = policyId + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
 
         var oldNFT =
-          "83c421f63be2811a4c65ddf1ce1059111dfc8de5fc35635979b2e4e3" +
-          assetName; //policyId + asset name (hex encoded)
+          "279b2518634a7402405b8df3d52c19e26bee2792f770fc0bb536bc4b" +
+          "000de140446f6d7a30"; //policyId + asset name (hex encoded)
 
         var redeemerRequest = Data.to(new Constr(0, [assetName]));
 

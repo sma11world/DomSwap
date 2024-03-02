@@ -1,26 +1,35 @@
-use aiken/dict.{Dict}
-use aiken/list.{filter, length}
-use aiken/transaction.{ScriptContext}
-
+use aiken/dict
+use aiken/list
+use aiken/transaction.{OutputReference, ScriptContext, Transaction} as tx
+use aiken/transaction/value
+use aiken/cbor
 type Redeemer {
-  Withdraw { assetName: ByteArray }
+    Withdraw { assetName: ByteArray }
 }
 
-pub type MapDatum =
-  Dict<ByteArray, ByteArray>
-
-type Datum {
-  map: MapDatum,
-  policy: ByteArray,
-}
-
-validator {
+//pass policy to validator build
+validator(policy_id: ByteArray) {
   fn holder(redeemer: Redeemer, ctx: ScriptContext) {
-    //tokenName is the hash of the concatenation of index and txId, we drop the last 3 bytes
+    let ScriptContext { transaction, .. } = ctx
+    let Transaction { mint, .. } = transaction
+
+      let policy_mint_list =
+        value.from_minted_value(mint)//convert value to trx outputs
+        |> value.tokens(policy_id)//only the outputs w tokens of policy
+        |> dict.to_list()
+
+    //how can i find the specific token im looking for?
+    //create a list of the ones under that policy
+    //and when they match up to what is sent and -1 (amount)
+    
+    //filter only the ones of the policy id (dont swap back wrong assets)
+
+    //expect burn of new policy_id + asset name = token
+      expect [(name, amount)] = policy_mint_list
 
     when redeemer is {
-      //We can only mint
-      Withdraw { assetName } -> True
+      Withdraw {assetName} ->
+        amount == -1 && assetName == name
     }
   }
 }

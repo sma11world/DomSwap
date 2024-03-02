@@ -11,11 +11,12 @@ use aiken/transaction/value.{
 
 //Request contract must be included inside the Borrower NFT contract, this is the hash of the request contract
 const databaseContract =
-  #"8192e5ae7627ee746d2d6202764b41b71dc19316655127837a46cf78"
+  #"9dc57ad278e60c1de58dba9d511c17804bdbcdea90080b9a824ae9bf" //(random numbers)
+
   //contract where merkele tree is stored, random until finalized ()
 
 //policyId
-const policyBase = #"83c421f63be2811a4c65ddf1ce1059111dfc8de5fc35635979b2e4e3"
+const policyBase = #"9dc57ad278e60c1de58dba9d511c17804bdbcdea90080b9a824ae9bf"
 
 //we pass in the redeemer the transaction to look for
 type Redeemer {
@@ -132,7 +133,7 @@ fn input_is_included(tx: ByteArray, index: Int, txInputs: List<Input>) {
 }
 
 //the output to the contract is the same output with datum, and there cannot be more than one output with datum and more than one to the contract
-fn one_datum_one_contract_outputs(txOutputs: List<Output>, contract: ByteArray) {
+fn one_daxtum_one_contract_outputs(txOutputs: List<Output>, contract: ByteArray) {
   let maybeOutput =
     list.filter(
       txOutputs,

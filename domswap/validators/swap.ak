@@ -9,6 +9,7 @@ use aiken/transaction/credential.{
   Address, VerificationKey, VerificationKeyCredential,
 }
 use aiken/transaction/value
+use aiken/cbor
 
 
 type Redeemer {
@@ -30,13 +31,14 @@ validator(policy_id: ByteArray) {
 
     expect [(name, amount)] = policy_mint_list
 
-    trace string.from_bytearray(name)
-    trace string.from_int(amount)
+    // trace cbor.diagnostic(redeemer)
+    // trace cbor.diagnostic(redeemer.assetName)
+    // trace cbor.diagnostic(name)
+    // trace cbor.diagnostic(amount)
 
     when redeemer is {
       Withdraw { assetName } -> amount == -1 && assetName == name
     }
-    //1 == 1
   }
 }
 

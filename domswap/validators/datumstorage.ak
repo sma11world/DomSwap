@@ -1,4 +1,3 @@
-
 type Redeemer {
   Withdraw { assetName: ByteArray }
 }

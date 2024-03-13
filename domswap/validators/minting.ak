@@ -68,7 +68,7 @@ validator {
             databaseContract,
           ),
         }
-      Burn -> token_is_burnt(from_minted_value(ctx.transaction.mint))
+      Burn -> token_is_burnt(from_minted_value(ctx.transaction.mint))//anything can burn (?)
     }
   }
 }

@@ -13,7 +13,7 @@ use aiken/cbor
 
 
 type Redeemer {
-  Withdraw { assetName: ByteArray }
+  Burn { assetName: ByteArray }
 }
 
 //pass policy to validator build
@@ -31,26 +31,28 @@ validator(policy_id: ByteArray) {
 
     expect [(name, amount)] = policy_mint_list
 
-    // trace cbor.diagnostic(redeemer)
-    // trace cbor.diagnostic(redeemer.assetName)
-    // trace cbor.diagnostic(name)
-    // trace cbor.diagnostic(amount)
+    trace string.from_int(amount)
+    // trace cbor.diagnostic(name) == cbor.diagnostic(redeemer.assetName)
+    trace cbor.diagnostic(name)
+    trace cbor.diagnostic(redeemer.assetName)
+    trace cbor.diagnostic(redeemer)
+    trace cbor.diagnostic(policy_id)
 
     when redeemer is {
-      Withdraw { assetName } -> amount == -1 && assetName == name
+      Burn { assetName } -> amount == -1 && assetName == name
     }
   }
 }
 
 test holder_example() {
   let redeemer =
-    Withdraw {
-      assetName: "world domination6",
+    Burn {
+      assetName: #"000de14073616d706c655f7365743131",
     }
   
-  let policy_id = #"8192e5ae7627ee746d2d6202764b41b71dc19316655127837a46cf78"
+  let policy_id = #"de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d"
 
-  let val = value.from_asset(policy_id: policy_id, asset_name: "world domination6", quantity: -1)
+  let val = value.from_asset(policy_id: policy_id, asset_name: #"000de14073616d706c655f7365743131", quantity: -1)
 
   let context =
     ScriptContext {

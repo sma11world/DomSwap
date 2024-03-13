@@ -62,9 +62,9 @@
       }
 
       async function burn() {
-        const hyperSpaceScript = {
+        const v2ContractScript = {
         type: "PlutusV2",
-        script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
+        script: toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
       };
 
       // var policyidScript = {
@@ -72,11 +72,14 @@
       //   script: toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
       // };
 
+      console.log(data.validators[0].title)
+      console.log(data.validators[1].title)
+      console.log(data.validators[2].title)
       var policyidScript = {
       type: "PlutusV2",
       script: applyParamsToScript(
               toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
-              "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d",
+              "5a6453f7620cc1c9572f3d7d399222f28b2abb5c3de5fa1136cdb068",
           )
       };
 
@@ -84,7 +87,7 @@
       console.log("new policy NFT");
       console.log(policyId);
 
-      const validatorHash = lucid.utils.validatorToScriptHash(hyperSpaceScript);
+      const validatorHash = lucid.utils.validatorToScriptHash(v2ContractScript);
       console.log("validator hash");
       console.log(validatorHash);
 
@@ -105,7 +108,7 @@
         console.log(paymentCredential.hash);
         console.log(stakeCredential.hash);
 
-        var assetName = document.getElementById("assetName");// "000de140646f6d7a30";
+        var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
         console.log("assetName");
         console.log(assetName);
         var unitNFT = "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
@@ -114,7 +117,7 @@
         console.log(unitNFT);
 
         var assetToBurn =
-          policyId +
+          "5a6453f7620cc1c9572f3d7d399222f28b2abb5c3de5fa1136cdb068" + //policyId
           assetName; //policyId + asset name (hex encoded)
 
         console.log("old");
@@ -122,7 +125,7 @@
 
         var redeemerRequest = Data.to(new Constr(0, [assetName]));
 
-        var datumRequest = Data.to(new Constr(0, []));
+        var datumRequest = Data.to(new Constr(0, [assetToBurn]));
 
         var nfts = {};
         nfts[assetToBurn] = -1n;
@@ -147,8 +150,13 @@
 
       var policyidScript = {
         type: "PlutusV2",
-        script: toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
+        script: toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
       };
+
+
+      console.log(data.validators[0].title)
+      console.log(data.validators[1].title)
+      console.log(data.validators[2].title)
 
       var policyId = lucid.utils.mintingPolicyToId(policyidScript);
       console.log("new policy NFT");
@@ -163,6 +171,8 @@
 
       console.log("address of request");
       console.log(addressRequest);
+
+
       //SWAP 
         api = await window.cardano[wallet].enable();
 

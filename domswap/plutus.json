@@ -99,7 +99,7 @@
       "title": "Redeemer",
       "anyOf": [
         {
-          "title": "Withdraw",
+          "title": "Burn",
           "dataType": "constructor",
           "index": 0,
           "fields": [

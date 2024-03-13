@@ -11,14 +11,12 @@ use aiken/transaction/value.{
 
 //Request contract must be included inside the Borrower NFT contract, this is the hash of the request contract
 const databaseContract =
-  #"9dc57ad278e60c1de58dba9d511c17804bdbcdea90080b9a824ae9bf"
+  #"279b2518634a7402405b8df3d52c19e26bee2792f770fc0bb536bc4b" //( idk )
 
-//(random numbers)
-
-//contract where merkele tree is stored, random until finalized ()
+  //contract where merkele tree is stored, random until finalized ()
 
 //policyId
-const policyBase = #"9dc57ad278e60c1de58dba9d511c17804bdbcdea90080b9a824ae9bf"
+const policyBase = #"279b2518634a7402405b8df3d52c19e26bee2792f770fc0bb536bc4b"
 
 //we pass in the redeemer the transaction to look for
 type Redeemer {

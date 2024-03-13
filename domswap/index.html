@@ -28,30 +28,122 @@
         Constr,
         fromHex,
         toHex,
+      applyParamsToScript,
         sha256,
       } from "https://unpkg.com/lucid-cardano@0.7.0/web/mod.js";
+     
       const lucid = await Lucid.new(
         new Blockfrost(
-          "https://cardano-preview.blockfrost.io/api/v0",
-          "previewCuKgDj1hQgDyMMcsbLKSt8GOKXDIGbv2"
+          "https://cardano-preprod.blockfrost.io/api/v0",
+          "preprodwMpZm1FWCvyw5XtRi8MwGNlntKG4AeXJ"
         ),
-        "Preview"
+        "Preprod"
       );
       import * as cbor from "https://deno.land/x/cbor@v1.4.1/index.js";
 
       import data from "./plutus.json" assert { type: "json" };
       console.log(data);
 
-      const hyperSpaceScript = {
+      
+
+      let api = undefined;
+      var wallet = "nami";
+
+      function checkAccess() {
+        return connected;
+      }
+
+      async function connect() {
+        api = await window.cardano[wallet].enable();
+        document.getElementById("swap").disabled = false;
+        document.getElementById("connect").disabled = true;
+        let x = document.getElementById("burns");
+          x.style.display = "block";
+      }
+
+      async function burn() {
+        const hyperSpaceScript = {
         type: "PlutusV2",
         script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
       };
 
-console.log("cbor.encode(fromHex(data.validators[0].compiledCode))")
-console.log(cbor.encode(fromHex(data.validators[0].compiledCode)))
-console.log("data.validators[2].compiledCode")
-console.log(data.validators[2].compiledCode)
+      // var policyidScript = {
+      //   type: "PlutusV2",
+      //   script: toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
+      // };
 
+      var policyidScript = {
+      type: "PlutusV2",
+      script: applyParamsToScript(
+              toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
+              "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d",
+          )
+      };
+
+      var policyId = lucid.utils.mintingPolicyToId(policyidScript);
+      console.log("new policy NFT");
+      console.log(policyId);
+
+      const validatorHash = lucid.utils.validatorToScriptHash(hyperSpaceScript);
+      console.log("validator hash");
+      console.log(validatorHash);
+
+      const CredentialSC = lucid.utils.scriptHashToCredential(validatorHash);
+      const addressRequest = lucid.utils.credentialToAddress(CredentialSC);
+
+      console.log("address of request");
+      console.log(addressRequest);
+      ///BURN
+        api = await window.cardano[wallet].enable();
+
+        lucid.selectWallet(api);
+        window.owner = await lucid.wallet.address();
+        const { paymentCredential, stakeCredential } =
+          lucid.utils.getAddressDetails(await lucid.wallet.address());
+
+        console.log("credentials");
+        console.log(paymentCredential.hash);
+        console.log(stakeCredential.hash);
+
+        var assetName = document.getElementById("assetName");// "000de140646f6d7a30";
+        console.log("assetName");
+        console.log(assetName);
+        var unitNFT = "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
+
+        console.log("new");
+        console.log(unitNFT);
+
+        var assetToBurn =
+          policyId +
+          assetName; //policyId + asset name (hex encoded)
+
+        console.log("old");
+        console.log(assetToBurn);
+
+        var redeemerRequest = Data.to(new Constr(0, [assetName]));
+
+        var datumRequest = Data.to(new Constr(0, []));
+
+        var nfts = {};
+        nfts[assetToBurn] = -1n;
+
+        const tx = await lucid
+          .newTx()
+          .payToContract(addressRequest, { inline: datumRequest }, nfts)
+          .mintAssets({ [unitNFT]: 1n }, redeemerRequest)
+          .attachMintingPolicy(policyidScript)
+          .complete();
+
+        const signedTx = await tx.sign().complete();
+        const txHash = await signedTx.submit();
+        console.log(txHash);
+      }
+
+      async function swap() {
+        const hyperSpaceScript = {
+        type: "PlutusV2",
+        script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
+      };
 
       var policyidScript = {
         type: "PlutusV2",
@@ -59,46 +151,44 @@ console.log(data.validators[2].compiledCode)
       };
 
       var policyId = lucid.utils.mintingPolicyToId(policyidScript);
-      console.log("policy NFT");
+      console.log("new policy NFT");
       console.log(policyId);
 
       const validatorHash = lucid.utils.validatorToScriptHash(hyperSpaceScript);
       console.log("validator hash");
       console.log(validatorHash);
+
       const CredentialSC = lucid.utils.scriptHashToCredential(validatorHash);
       const addressRequest = lucid.utils.credentialToAddress(CredentialSC);
+
       console.log("address of request");
       console.log(addressRequest);
-      let api = undefined;
-
-      var wallet = "nami";
-
-      function checkAccess() {
-        return connected;
-      }
-      async function connect() {
-        api = await window.cardano[wallet].enable();
-        document.getElementById("swap").disabled = false;
-        document.getElementById("connect").disabled = true;
-      }
-
-      async function swap() {
+      //SWAP 
         api = await window.cardano[wallet].enable();
 
         lucid.selectWallet(api);
         window.owner = await lucid.wallet.address();
         const { paymentCredential, stakeCredential } =
           lucid.utils.getAddressDetails(await lucid.wallet.address());
+
         console.log("credentials");
         console.log(paymentCredential.hash);
         console.log(stakeCredential.hash);
-        var assetName = "000de140446f6d7a30";
 
+        var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
+        console.log("assetName");
+        console.log(assetName);
         var unitNFT = policyId + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
 
+        console.log("new");
+        console.log(unitNFT);
+
         var oldNFT =
-          "279b2518634a7402405b8df3d52c19e26bee2792f770fc0bb536bc4b" +
-          "000de140446f6d7a30"; //policyId + asset name (hex encoded)
+          "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" +
+          assetName; //policyId + asset name (hex encoded)
+
+        console.log("old");
+        console.log(oldNFT);
 
         var redeemerRequest = Data.to(new Constr(0, [assetName]));
 
@@ -119,20 +209,35 @@ console.log(data.validators[2].compiledCode)
         console.log(txHash);
       }
 
+      
       document.getElementById("swap").disabled = true;
+      let x = document.getElementById("burns");
+      x.style.display = "none";
       document.getElementById("connect").disabled = false;
+
       document.getElementById("connect").onclick = async () => {
         await connect();
       };
+
       document.getElementById("swap").onclick = async () => {
         await swap();
+      };
+
+      document.getElementById("burn").onclick = async () => {
+        await burn();
       };
     </script>
 
     <div>
       <h1>World Domination</h1>
+      <input type="text" id="assetName" placeholder="000de140646f6d7a30">
       <button id="connect">connect</button>
       <button id="swap">swap</button>
+    <br>
+    <br>
+      <div id="burns" style="border: none !important;">
+        <h1>burn asset</h1>
+        <button id="burn">burn</button>
     </div>
   </body>
 </html>

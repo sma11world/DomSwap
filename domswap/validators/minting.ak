@@ -5,6 +5,9 @@ use aiken/transaction.{
   Transaction, TransactionId,
 }
 use aiken/transaction/credential.{Address, ScriptCredential}
+use aiken/bytearray
+use aiken/string
+use aiken/cbor
 use aiken/transaction/value.{
   Value, flatten, from_asset, from_minted_value, quantity_of,
 }
@@ -34,13 +37,24 @@ type Redeemer {
 
 validator {
   fn minter(redeemer: Redeemer, ctx: ScriptContext) {
-    //tokenName is the hash of the concatenation of index and txId, we drop the last 3 bytes
-
+  trace "wassup!!!"
     //the policy is evaluated from the tx purpose
     let policy: ByteArray = get_policy(ctx.purpose)
+
+    // trace cbor.diagnostic(redeemer)
+    // trace cbor.diagnostic(policy)
+    // trace cbor.diagnostic(ctx)
+    // trace bytearray.is_empty(policy)
+    // trace bytearray.to_string(policy)
+    // trace string.from_bytearray(policy)
+
     when redeemer is {
       //We can only mint
       Create { assetName } -> and {
+          trace cbor.diagnostic(assetName)
+          trace cbor.diagnostic(policy)
+          trace cbor.diagnostic(ctx.transaction.mint)
+          //trace string.from_bytearray(assetName)
           only_one_token_minted(
             from_minted_value(ctx.transaction.mint),
             policy,

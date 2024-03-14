@@ -62,161 +62,174 @@
       }
 
       async function burn() {
-        const v2ContractScript = {
-        type: "PlutusV2",
-        script: toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
-      };
+        try{
+          const swapBackValidatorScript = {
+            type: "PlutusV2",
+            script: applyParamsToScript(
+                toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
+                "76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048",
+            )
+          };
 
-      // var policyidScript = {
-      //   type: "PlutusV2",
-      //   script: toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
-      // };
+          // var policyidScript = {
+          //   type: "PlutusV2",
+          //   script: toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
+          // };
 
-      console.log(data.validators[0].title)
-      console.log(data.validators[1].title)
-      console.log(data.validators[2].title)
-      var policyidScript = {
-      type: "PlutusV2",
-      script: applyParamsToScript(
-              toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
-              "5a6453f7620cc1c9572f3d7d399222f28b2abb5c3de5fa1136cdb068",
-          )
-      };
+          console.log(data.validators[0].title)
+          console.log(data.validators[1].title)
+          console.log(data.validators[2].title)
+          var v2MintingContractValidatorScript = {
+            type: "PlutusV2",
+            script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
+          };
 
-      var policyId = lucid.utils.mintingPolicyToId(policyidScript);
-      console.log("new policy NFT");
-      console.log(policyId);
+          var policyId = lucid.utils.mintingPolicyToId(v2MintingContractValidatorScript);
+          console.log("reversed policy NFT");
+          console.log(policyId);
 
-      const validatorHash = lucid.utils.validatorToScriptHash(v2ContractScript);
-      console.log("validator hash");
-      console.log(validatorHash);
+          const validatorHash = lucid.utils.validatorToScriptHash(swapBackValidatorScript);
+          console.log("validator hash");
+          console.log(validatorHash);
 
-      const CredentialSC = lucid.utils.scriptHashToCredential(validatorHash);
-      const addressRequest = lucid.utils.credentialToAddress(CredentialSC);
+          const CredentialSC = lucid.utils.scriptHashToCredential(validatorHash);
+          const addressRequest = lucid.utils.credentialToAddress(CredentialSC);
 
-      console.log("address of request");
-      console.log(addressRequest);
-      ///BURN
-        api = await window.cardano[wallet].enable();
+          console.log("address of request");
+          console.log(addressRequest);
+        ///BURN
+          api = await window.cardano[wallet].enable();
 
-        lucid.selectWallet(api);
-        window.owner = await lucid.wallet.address();
-        const { paymentCredential, stakeCredential } =
-          lucid.utils.getAddressDetails(await lucid.wallet.address());
+          lucid.selectWallet(api);
+          window.owner = await lucid.wallet.address();
+          const { paymentCredential, stakeCredential } =
+            lucid.utils.getAddressDetails(await lucid.wallet.address());
 
-        console.log("credentials");
-        console.log(paymentCredential.hash);
-        console.log(stakeCredential.hash);
+          console.log("credentials");
+          console.log(paymentCredential.hash);
+          console.log(stakeCredential.hash);
 
-        var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
-        console.log("assetName");
-        console.log(assetName);
-        var unitNFT = "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
+          var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
+          console.log("assetName");
+          console.log(assetName);
+          var unitNFT = "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
 
-        console.log("new");
-        console.log(unitNFT);
+          console.log("get this:");
+          console.log(unitNFT);
 
-        var assetToBurn =
-          "5a6453f7620cc1c9572f3d7d399222f28b2abb5c3de5fa1136cdb068" + //policyId
-          assetName; //policyId + asset name (hex encoded)
+          var assetToBurn =
+            "76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048" + //policyId
+            assetName; //policyId + asset name (hex encoded)
 
-        console.log("old");
-        console.log(assetToBurn);
+          console.log("by burning this:");
+          console.log(assetToBurn);
 
-        var redeemerRequest = Data.to(new Constr(0, [assetName]));
+          var redeemerRequest = Data.to(new Constr(0, ["76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048"]));
 
-        var datumRequest = Data.to(new Constr(0, [assetToBurn]));
+          var datumRequest = Data.to(new Constr(0, ["76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048"]));
 
-        var nfts = {};
-        nfts[assetToBurn] = -1n;
+          var nfts = {};
+          nfts[assetToBurn] = -1n;
 
-        const tx = await lucid
-          .newTx()
-          .payToContract(addressRequest, { inline: datumRequest }, nfts)
-          .mintAssets({ [unitNFT]: 1n }, redeemerRequest)
-          .attachMintingPolicy(policyidScript)
-          .complete();
+          const tx = await lucid
+            .newTx()
+            .payToContract(addressRequest, { inline: datumRequest }, {lovelace: 35000000n} )
+            .mintAssets({ [assetToBurn]: -1n }, redeemerRequest)
+            .attachMintingPolicy(swapBackValidatorScript)
+            .complete();
 
-        const signedTx = await tx.sign().complete();
-        const txHash = await signedTx.submit();
-        console.log(txHash);
+          const signedTx = await tx.sign().complete();
+          const txHash = await signedTx.submit();
+          console.log(txHash);
+        }catch(e){
+          console.log(e);
+          throw e;
+        }
       }
 
       async function swap() {
-        const hyperSpaceScript = {
-        type: "PlutusV2",
-        script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
-      };
+        try{
 
-      var policyidScript = {
-        type: "PlutusV2",
-        script: toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
-      };
+        const v2MintingContractValidatorScript = {//mint/v2 validator 
+          type: "PlutusV2",
+          script: toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
+        };
 
-
-      console.log(data.validators[0].title)
-      console.log(data.validators[1].title)
-      console.log(data.validators[2].title)
-
-      var policyId = lucid.utils.mintingPolicyToId(policyidScript);
-      console.log("new policy NFT");
-      console.log(policyId);
-
-      const validatorHash = lucid.utils.validatorToScriptHash(hyperSpaceScript);
-      console.log("validator hash");
-      console.log(validatorHash);
-
-      const CredentialSC = lucid.utils.scriptHashToCredential(validatorHash);
-      const addressRequest = lucid.utils.credentialToAddress(CredentialSC);
-
-      console.log("address of request");
-      console.log(addressRequest);
+        var policyidScript = {//generic validator (?)
+          type: "PlutusV2",
+          script: toHex(cbor.encode(fromHex(data.validators[0].compiledCode))),
+        };
 
 
-      //SWAP 
-        api = await window.cardano[wallet].enable();
+        console.log(data.validators[0].title)
+        console.log(data.validators[1].title)
+        console.log(data.validators[2].title)
 
-        lucid.selectWallet(api);
-        window.owner = await lucid.wallet.address();
-        const { paymentCredential, stakeCredential } =
-          lucid.utils.getAddressDetails(await lucid.wallet.address());
+        var policyId = lucid.utils.mintingPolicyToId(policyidScript);
+        console.log("new policy NFT");
+        console.log(policyId);
 
-        console.log("credentials");
-        console.log(paymentCredential.hash);
-        console.log(stakeCredential.hash);
+        const validatorHash = lucid.utils.validatorToScriptHash(v2MintingContractValidatorScript);
+        console.log("validator hash");
+        console.log(validatorHash);
 
-        var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
-        console.log("assetName");
-        console.log(assetName);
-        var unitNFT = policyId + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
+        const CredentialSC = lucid.utils.scriptHashToCredential(validatorHash);
+        const addressRequest = lucid.utils.credentialToAddress(CredentialSC);
 
-        console.log("new");
-        console.log(unitNFT);
+        console.log("address of request");
+        console.log(addressRequest);
 
-        var oldNFT =
-          "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" +
-          assetName; //policyId + asset name (hex encoded)
 
-        console.log("old");
-        console.log(oldNFT);
+        //SWAP 
+          api = await window.cardano[wallet].enable();
 
-        var redeemerRequest = Data.to(new Constr(0, [assetName]));
+          lucid.selectWallet(api);
+          window.owner = await lucid.wallet.address();
+          const { paymentCredential, stakeCredential } =
+            lucid.utils.getAddressDetails(await lucid.wallet.address());
 
-        var datumRequest = Data.to(new Constr(0, []));
+          console.log("credentials");
+          console.log(paymentCredential.hash);
+          console.log(stakeCredential.hash);
 
-        var nfts = {};
-        nfts[oldNFT] = 1n;
+          var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
+          console.log("assetName");
+          console.log(assetName);
+          var unitNFT = policyId + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
 
-        const tx = await lucid
-          .newTx()
-          .payToContract(addressRequest, { inline: datumRequest }, nfts)
-          .mintAssets({ [unitNFT]: 1n }, redeemerRequest)
-          .attachMintingPolicy(policyidScript)
-          .complete();
+          console.log("new");
+          console.log(unitNFT);
 
-        const signedTx = await tx.sign().complete();
-        const txHash = await signedTx.submit();
-        console.log(txHash);
+          var oldNFT =
+            "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" +
+            assetName; //policyId + asset name (hex encoded)
+
+          console.log("old");
+          console.log(oldNFT);
+
+          var redeemerRequest = Data.to(new Constr(0, [assetName]));
+          var datumRequest = Data.to(new Constr(0, []));
+
+          console.log("REDEEMER: " + redeemerRequest);
+
+          var nfts = {};
+          nfts[oldNFT] = 1n;
+
+          const tx = await lucid
+            .newTx()
+            .payToContract(addressRequest, { inline: datumRequest }, nfts)
+            .mintAssets({ [unitNFT]: 1n }, redeemerRequest)
+            .attachMintingPolicy(policyidScript)
+            .complete();
+
+          const signedTx = await tx.sign().complete();
+          const txHash = await signedTx.submit();
+          console.log(txHash);
+        }catch(e){
+          console.log("ERR")
+          console.log(e)
+          throw e;
+        }
       }
 
       

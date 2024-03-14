@@ -12,6 +12,7 @@ type Redeemer {
 
 validator {
   fn storage(redeemer: Redeemer, _datum) {
+    trace "HI"
     //tokenName is the hash of the concatenation of index and txId, we drop the last 3 bytes
 
     when redeemer is {

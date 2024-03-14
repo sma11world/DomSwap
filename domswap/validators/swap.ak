@@ -19,6 +19,7 @@ type Redeemer {
 //pass policy to validator build
 validator(policy_id: ByteArray) {
   fn holder(redeemer: Redeemer, ctx: ScriptContext) {
+    trace "HEHRERE BABY!!"
     let ScriptContext { transaction, .. } = ctx
     let Transaction { mint, .. } = transaction
 

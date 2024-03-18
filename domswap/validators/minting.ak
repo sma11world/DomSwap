@@ -37,7 +37,7 @@ type Redeemer {
 
 validator {
   fn minter(redeemer: Redeemer, ctx: ScriptContext) {
-  trace "wassup!!!"
+    trace "yooo!!!"
     //the policy is evaluated from the tx purpose
     let policy: ByteArray = get_policy(ctx.purpose)
 

@@ -67,7 +67,7 @@
             type: "PlutusV2",
             script: applyParamsToScript(
                 toHex(cbor.encode(fromHex(data.validators[2].compiledCode))),
-                "76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048",
+                "ec47045320169734497e37e72667bbe60a1d299eae3cce85d2a077b9",
             )
           };
 
@@ -112,30 +112,39 @@
           var assetName = document.getElementById("assetName").value;// "000de140646f6d7a30";
           console.log("assetName");
           console.log(assetName);
-          var unitNFT = "de383a04ea577b55882ea3084aab822adcba607b2467d09314f1817d" + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
+          var unitNFT = policyId + assetName; //new nft policyid made from minter aiken and enceded name matching old asset
 
           console.log("get this:");
           console.log(unitNFT);
 
           var assetToBurn =
-            "76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048" + //policyId
+            "ec47045320169734497e37e72667bbe60a1d299eae3cce85d2a077b9" + //policyId
             assetName; //policyId + asset name (hex encoded)
 
           console.log("by burning this:");
           console.log(assetToBurn);
 
-          var redeemerRequest = Data.to(new Constr(0, ["76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048"]));
+          var redeemerRequest = Data.to(new Constr(0, [assetName]));
 
-          var datumRequest = Data.to(new Constr(0, ["76d34a7631bbd0dd57a99268fe7d8735a7780fedd65989d682494048"]));
+          var datumRequest = Data.to(new Constr(0, []));
 
           var nfts = {};
           nfts[assetToBurn] = -1n;
 
+          // const [utxo] = await lucid.utils.validatorToAddress(v2MintingContractValidatorScript);
+
+          const scriptAddress = lucid.utils.validatorToAddress(v2MintingContractValidatorScript);
+
+          const [utxo] = await lucid.utxosAt(scriptAddress);
+          const scriptUtxos = await lucid.utxosAt(scriptAddress);
+
+          console.log(scriptUtxos)
           const tx = await lucid
             .newTx()
-            .payToContract(addressRequest, { inline: datumRequest }, {lovelace: 35000000n} )
+            .collectFrom([utxo], Data.empty())
+            .payToAddressWithData(addressRequest, { inline: datumRequest }, nfts)
             .mintAssets({ [assetToBurn]: -1n }, redeemerRequest)
-            .attachMintingPolicy(swapBackValidatorScript)
+            .attachMintingPolicy(v2MintingContractValidatorScript)
             .complete();
 
           const signedTx = await tx.sign().complete();
@@ -152,7 +161,8 @@
 
         const v2MintingContractValidatorScript = {//mint/v2 validator 
           type: "PlutusV2",
-          script: toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
+          script: 
+                toHex(cbor.encode(fromHex(data.validators[1].compiledCode))),
         };
 
         var policyidScript = {//generic validator (?)
